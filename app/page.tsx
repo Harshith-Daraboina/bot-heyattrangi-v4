@@ -1,6 +1,7 @@
 "use client";
 
 import ChatBubble, { Block } from "./components/ChatBubble";
+import SummaryCard from "./components/SummaryCard";
 import { useState, useEffect, useRef } from "react";
 import { Send, User as UserIcon, Loader2, Sparkles, ChevronRight, ChevronLeft, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,12 +32,12 @@ const THINKING_PHRASES = [
   "Reviewing recent context...",
   "Noticing important themes...",
   "Preparing a thoughtful reply...",
-  "Reflecting on what you’ve shared...",
+  "Reflecting on what you've shared...",
   "Holding the bigger picture...",
   "Responding with care..."
 ];
 
-const API_BASE = "http://localhost:7860";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://huggingface.co/spaces/Heyattrangi-spaces/Bot-Heyattrangi-V4";
 
 export default function Home() {
   // --- STATE ---
@@ -47,7 +48,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [thinkingText, setThinkingText] = useState("");
   const [expression, setExpression] = useState("NEUTRAL");
-  const [summary, setSummary] = useState("");
+  const [summary, setSummary] = useState<any>(null);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
 
@@ -116,9 +117,9 @@ export default function Home() {
         body: JSON.stringify({ session_id: sessionId })
       });
       const data = await res.json();
-      setSummary(data.summary);
+      setSummary(data);
     } catch (e) {
-      setSummary("Failed to generate summary.");
+      setSummary(null);
     } finally {
       setSummaryLoading(false);
     }
@@ -497,38 +498,21 @@ export default function Home() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           >
-            <div className="bg-[#0F172A] border border-slate-700 w-full max-w-2xl rounded-2xl p-8 shadow-2xl relative">
-              <button
-                onClick={() => setIsSummaryOpen(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white"
-              >
-                ✕
-              </button>
-
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Sparkles className="text-blue-400" /> Session Summary
-              </h2>
-
-              {summaryLoading ? (
-                <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                  <Loader2 size={40} className="animate-spin text-blue-500" />
-                  <p className="text-slate-400 animate-pulse">Synthesizing conversation...</p>
-                </div>
-              ) : (
-                <div className="prose prose-invert max-w-none">
-                  <p className="text-lg text-slate-300 leading-relaxed whitespace-pre-wrap">{summary}</p>
-                </div>
-              )}
-
-              <div className="mt-8 flex justify-end">
-                <button
-                  onClick={resetChat}
-                  className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-medium"
-                >
-                  Start Fresh
-                </button>
+            {summaryLoading ? (
+              <div className="flex flex-col items-center justify-center p-8 bg-[#0F172A] border border-slate-700 rounded-2xl shadow-2xl">
+                <Loader2 size={40} className="animate-spin text-blue-500 mb-4" />
+                <p className="text-slate-400 animate-pulse text-sm">Synthesizing conversation themes...</p>
               </div>
-            </div>
+            ) : (
+              <SummaryCard
+                data={summary ? (typeof summary === 'string' ? JSON.parse(summary) : summary) : null}
+                onClose={() => setIsSummaryOpen(false)}
+                onReset={() => {
+                  setIsSummaryOpen(false);
+                  resetChat();
+                }}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>

@@ -12,6 +12,7 @@ type Message = {
   role: "user" | "assistant";
   content: string;
   blocks?: Block[];
+  timestamp?: string;
 };
 
 type Profile = {
@@ -37,7 +38,7 @@ const THINKING_PHRASES = [
   "Responding with care..."
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://huggingface.co/spaces/Heyattrangi-spaces/Bot-Heyattrangi-V4";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://Heyattrangi-spaces-Bot-Heyattrangi-V4.hf.space";
 
 export default function Home() {
   // --- STATE ---
@@ -187,7 +188,9 @@ export default function Home() {
 
     const userMsg = input;
     setInput("");
-    setMessages(p => [...p, { role: "user", content: userMsg }]);
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    setMessages(p => [...p, { role: "user", content: userMsg, timestamp: now }]);
     setLoading(true);
     setThinkingText(THINKING_PHRASES[Math.floor(Math.random() * THINKING_PHRASES.length)]);
     setExpression("DEFAULT");
@@ -203,7 +206,8 @@ export default function Home() {
       setMessages(p => [...p, {
         role: "assistant",
         content: data.reply,
-        blocks: data.blocks
+        blocks: data.blocks,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }]);
       setExpression(data.expression || "NEUTRAL");
 
@@ -439,6 +443,7 @@ export default function Home() {
                       role={m.role}
                       content={m.content}
                       blocks={m.blocks}
+                      timestamp={m.timestamp}
                       isLatest={i === messages.length - 1}
                     />
                   </motion.div>
@@ -501,11 +506,11 @@ export default function Home() {
             {summaryLoading ? (
               <div className="flex flex-col items-center justify-center p-8 bg-[#0F172A] border border-slate-700 rounded-2xl shadow-2xl">
                 <Loader2 size={40} className="animate-spin text-blue-500 mb-4" />
-                <p className="text-slate-400 animate-pulse text-sm">Synthesizing conversation themes...</p>
+                <p className="text-slate-400 animate-pulse text-sm">Synthesizing clinical report...</p>
               </div>
             ) : (
               <SummaryCard
-                data={summary ? (typeof summary === 'string' ? JSON.parse(summary) : summary) : null}
+                report={summary?.report || ""}
                 onClose={() => setIsSummaryOpen(false)}
                 onReset={() => {
                   setIsSummaryOpen(false);

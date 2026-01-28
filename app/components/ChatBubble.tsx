@@ -12,6 +12,7 @@ interface ChatBubbleProps {
     role: "user" | "assistant";
     content: string;
     blocks?: Block[];
+    timestamp?: string;
     isLatest: boolean;
 }
 
@@ -42,26 +43,32 @@ const Typewriter = ({ text, speed = 10, delay = 0 }: { text: string; speed?: num
     return <span>{displayedText}</span>;
 };
 
-export default function ChatBubble({ role, content, blocks, isLatest }: ChatBubbleProps) {
+export default function ChatBubble({ role, content, blocks, timestamp, isLatest }: ChatBubbleProps) {
     const [showPhase2, setShowPhase2] = useState(false);
     const [showPhase3, setShowPhase3] = useState(false);
 
     useEffect(() => {
         if (role === "assistant" && isLatest && blocks && blocks.length > 0) {
-            // Phase 1 is always visible immediately
 
-            // Phase 2 Delay (500ms)
-            const t1 = setTimeout(() => setShowPhase2(true), 500);
+            const hasImmediate = blocks.some(b => b.phase === "immediate");
+            const hasContext = blocks.some(b => b.phase === "context");
 
-            // Phase 3 Delay (1200ms)
-            const t2 = setTimeout(() => setShowPhase3(true), 1200);
+            // Calculate natural delays based on what's actually there
+            // If no immediate line, context starts sooner.
+            // If no context, deep starts sooner.
+
+            const p2Delay = hasImmediate ? 600 : 0;
+            const p3Delay = p2Delay + (hasContext ? 800 : 200);
+
+            const t1 = setTimeout(() => setShowPhase2(true), p2Delay);
+            const t2 = setTimeout(() => setShowPhase3(true), p3Delay);
 
             return () => {
                 clearTimeout(t1);
                 clearTimeout(t2);
             };
         } else {
-            // If not latest or no blocks (history), show everything
+            // Not latest or history -> show all
             setShowPhase2(true);
             setShowPhase3(true);
         }
@@ -70,8 +77,13 @@ export default function ChatBubble({ role, content, blocks, isLatest }: ChatBubb
     if (role === "user") {
         return (
             <div className="flex w-full justify-end">
-                <div className="max-w-[85%] lg:max-w-[70%] p-5 rounded-2xl text-lg leading-relaxed shadow-sm bg-blue-600 text-white rounded-br-none">
+                <div className="max-w-[85%] lg:max-w-[70%] p-5 rounded-2xl text-lg leading-relaxed shadow-sm bg-blue-600 text-white rounded-br-none relative pb-8">
                     {content}
+                    {timestamp && (
+                        <span className="absolute bottom-2 right-4 text-[11px] text-blue-100/70 font-medium tracking-wide">
+                            {timestamp}
+                        </span>
+                    )}
                 </div>
             </div>
         );
@@ -89,8 +101,13 @@ export default function ChatBubble({ role, content, blocks, isLatest }: ChatBubb
     if (!hasBlocks) {
         return (
             <div className="flex w-full justify-start">
-                <div className="max-w-[85%] lg:max-w-[70%] p-5 rounded-2xl text-lg leading-relaxed shadow-sm bg-[#1E293B] text-slate-200 border border-slate-800 rounded-bl-none">
+                <div className="max-w-[85%] lg:max-w-[70%] p-5 rounded-2xl text-lg leading-relaxed shadow-sm bg-[#1E293B] text-slate-200 border border-slate-800 rounded-bl-none relative pb-8">
                     {content}
+                    {timestamp && (
+                        <span className="absolute bottom-2 right-4 text-[11px] text-slate-500 font-medium tracking-wide">
+                            {timestamp}
+                        </span>
+                    )}
                 </div>
             </div>
         );
@@ -133,6 +150,12 @@ export default function ChatBubble({ role, content, blocks, isLatest }: ChatBubb
                     >
                         {isLatest ? <Typewriter text={deep.text} speed={25} delay={0} /> : deep.text}
                     </motion.div>
+                )}
+
+                {timestamp && (
+                    <span className="absolute bottom-2 right-4 text-[11px] text-slate-500 font-medium tracking-wide select-none">
+                        {timestamp}
+                    </span>
                 )}
             </div>
         </div>

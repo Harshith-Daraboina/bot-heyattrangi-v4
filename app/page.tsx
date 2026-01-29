@@ -233,96 +233,7 @@ export default function Home() {
 
   // --- RENDER HELPERS ---
   const renderOnboarding = () => {
-    // STEP 1: ABOUT YOU
-    if (onboardingStep === 0) return (
-      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-        <h2 className="text-2xl font-semibold text-slate-100">About You</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm text-slate-400 mb-1">Name (Optional)</label>
-            <input
-              value={profile.name}
-              onChange={e => setProfile({ ...profile, name: e.target.value })}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-slate-100 outline-none focus:border-blue-500 transition"
-              placeholder="What should I call you?"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-slate-400 mb-1">Age Range</label>
-            <div className="flex flex-wrap gap-2">
-              {["under_18", "18-25", "26-35", "36-50", "50+"].map(a => (
-                <button
-                  key={a}
-                  onClick={() => setProfile({ ...profile, age_range: a })}
-                  className={`px-4 py-2 rounded-full text-sm border transition ${profile.age_range === a
-                    ? "bg-blue-600 border-blue-600 text-white"
-                    : "bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-750"
-                    }`}
-                >
-                  {a}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm text-slate-400 mb-1">Role</label>
-            <select
-              value={profile.role}
-              onChange={e => setProfile({ ...profile, role: e.target.value })}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-slate-100 outline-none"
-            >
-              <option value="">Select a Role</option>
-              <option value="student">Student</option>
-              <option value="working_professional">Working Professional</option>
-              <option value="caregiver">Caregiver</option>
-              <option value="patient">Patient</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex justify-end pt-4">
-          <button onClick={handleNext} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg flex items-center gap-2">
-            Next <ChevronRight size={18} />
-          </button>
-        </div>
-      </motion.div>
-    );
-
-    // STEP 2: FOCUS
-    if (onboardingStep === 1) return (
-      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-        <h2 className="text-2xl font-semibold text-slate-100">What's on your mind?</h2>
-        <p className="text-slate-400">Select as many as you like.</p>
-        <div className="grid grid-cols-1 gap-3">
-          {[
-            "myself", "someone important to me", "work or studies",
-            "health", "relationships", "something unclear", "just thinking out loud"
-          ].map(t => (
-            <button
-              key={t}
-              onClick={() => toggleTopic(t)}
-              className={`p-4 rounded-xl border text-left flex justify-between items-center transition ${profile.topic_focus.includes(t)
-                ? "bg-blue-900/30 border-blue-500 text-blue-100"
-                : "bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-750"
-                }`}
-            >
-              {t}
-              {profile.topic_focus.includes(t) && <Check size={18} className="text-blue-400" />}
-            </button>
-          ))}
-        </div>
-        <div className="flex justify-between pt-4">
-          <button onClick={handleBack} className="text-slate-400 hover:text-white px-4 py-2 flex items-center gap-2">
-            <ChevronLeft size={18} /> Back
-          </button>
-          <button onClick={handleNext} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg flex items-center gap-2">
-            Next <ChevronRight size={18} />
-          </button>
-        </div>
-      </motion.div>
-    );
-
-    // STEP 3: STYLE
+    // STEP 3: STYLE (Now the ONLY step)
     return (
       <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
         <h2 className="text-2xl font-semibold text-slate-100">How can I help?</h2>
@@ -346,10 +257,7 @@ export default function Home() {
             </button>
           ))}
         </div>
-        <div className="flex justify-between pt-4">
-          <button onClick={handleBack} className="text-slate-400 hover:text-white px-4 py-2 flex items-center gap-2">
-            <ChevronLeft size={18} /> Back
-          </button>
+        <div className="flex justify-end pt-4">
           <button
             onClick={finishOnboarding}
             disabled={!profile.support_style}

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 export type Block = {
     text: string;
-    phase: "immediate" | "context" | "deep";
+    phase: "immediate" | "context" | "deep" | "safety_action";
 };
 
 interface ChatBubbleProps {
@@ -149,6 +149,23 @@ export default function ChatBubble({ role, content, blocks, timestamp, isLatest 
                         transition={{ duration: 0.8 }}
                     >
                         {isLatest ? <Typewriter text={deep.text} speed={25} delay={0} /> : deep.text}
+                    </motion.div>
+                )}
+
+                {/* PHASE 4: SAFETY ACTION (Demo) */}
+                {blocks.find(b => b.phase === "safety_action") && showPhase3 && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="mt-4 p-4 rounded-xl bg-red-900/20 border border-red-500/50 flex items-center gap-3"
+                    >
+                        <div className="p-2 bg-red-500/10 rounded-full animate-pulse">
+                            <span className="text-xl">📞</span>
+                        </div>
+                        <div className="flex-1">
+                            <div className="text-red-200 font-semibold text-sm">Emergency Assistance Demo</div>
+                            <div className="text-red-300/80 text-xs">Simulating connection to crisis services...</div>
+                        </div>
                     </motion.div>
                 )}
 
